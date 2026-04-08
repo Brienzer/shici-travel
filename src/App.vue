@@ -1,15 +1,72 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import TravelMap from './components/TravelMap.vue'
 import VisitedPanel from './components/VisitedPanel.vue'
+import { getProvinceTooltipData } from './data/shijingPlaces'
 
 const visitedProvinces = ref([])
 const hoveredPlace = ref(null)
+const provinceMist = ref({
+  visible: false,
+  phase: 'idle',
+  province: '',
+  displayName: '',
+  runId: 0
+})
 
+const mistTimers = []
 const visitedCount = computed(() => visitedProvinces.value.length)
+
+function clearMistTimers() {
+  mistTimers.splice(0).forEach((timer) => window.clearTimeout(timer))
+}
+
+function playProvinceMist(name) {
+  const place = getProvinceTooltipData(name)
+  const displayName = place?.ancientName ?? place?.landmark ?? name
+
+  clearMistTimers()
+
+  provinceMist.value = {
+    visible: true,
+    phase: 'condense',
+    province: name,
+    displayName,
+    runId: provinceMist.value.runId + 1
+  }
+
+  mistTimers.push(
+    window.setTimeout(() => {
+      provinceMist.value = {
+        ...provinceMist.value,
+        phase: 'hold'
+      }
+    }, 700)
+  )
+
+  mistTimers.push(
+    window.setTimeout(() => {
+      provinceMist.value = {
+        ...provinceMist.value,
+        phase: 'disperse'
+      }
+    }, 3700)
+  )
+
+  mistTimers.push(
+    window.setTimeout(() => {
+      provinceMist.value = {
+        ...provinceMist.value,
+        visible: false,
+        phase: 'idle'
+      }
+    }, 4600)
+  )
+}
 
 function toggleProvince(name) {
   const current = new Set(visitedProvinces.value)
+  const isVisiting = !current.has(name)
 
   if (current.has(name)) {
     current.delete(name)
@@ -18,6 +75,10 @@ function toggleProvince(name) {
   }
 
   visitedProvinces.value = Array.from(current)
+
+  if (isVisiting) {
+    playProvinceMist(name)
+  }
 }
 
 function resetVisited() {
@@ -27,6 +88,10 @@ function resetVisited() {
 function updateHoveredPlace(place) {
   hoveredPlace.value = place
 }
+
+onBeforeUnmount(() => {
+  clearMistTimers()
+})
 </script>
 
 <template>
@@ -71,5 +136,23 @@ function updateHoveredPlace(place) {
         @reset="resetVisited"
       />
     </main>
+
+    <transition name="province-mist-fade">
+      <div
+        v-if="provinceMist.visible"
+        :key="provinceMist.runId"
+        class="province-mist-overlay"
+        :class="`is-${provinceMist.phase}`"
+      >
+        <div class="province-mist-overlay__veil"></div>
+        <div class="province-mist-overlay__fog province-mist-overlay__fog--left"></div>
+        <div class="province-mist-overlay__fog province-mist-overlay__fog--right"></div>
+        <div class="province-mist-overlay__core"></div>
+        <div class="province-mist-overlay__text-wrap">
+          <div class="province-mist-overlay__province">今 {{ provinceMist.province }}</div>
+          <div class="province-mist-overlay__text">{{ provinceMist.displayName }}</div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>

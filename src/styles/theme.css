@@ -104,6 +104,292 @@ body::before {
   padding: 32px;
 }
 
+.province-mist-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 60;
+  overflow: hidden;
+}
+
+.province-mist-overlay__veil,
+.province-mist-overlay__fog,
+.province-mist-overlay__core {
+  position: absolute;
+  inset: 0;
+}
+
+.province-mist-overlay__veil {
+  background: radial-gradient(circle at center, rgba(255, 249, 238, 0.08), rgba(255, 249, 238, 0.2) 42%, rgba(239, 229, 208, 0.08) 72%, transparent 100%);
+}
+
+.province-mist-overlay__fog {
+  top: 50%;
+  bottom: auto;
+  width: 44vw;
+  height: 44vw;
+  max-width: 620px;
+  max-height: 620px;
+  min-width: 280px;
+  min-height: 280px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(126, 96, 62, 0.16) 0%, rgba(166, 135, 97, 0.12) 28%, rgba(245, 237, 221, 0.06) 58%, transparent 74%),
+    radial-gradient(circle at 60% 42%, rgba(255, 249, 238, 0.5), transparent 48%);
+  filter: blur(30px);
+  opacity: 0;
+  transform: translateY(-50%) scale(1.45);
+}
+
+.province-mist-overlay__fog--left {
+  left: 50%;
+  margin-left: -30vw;
+}
+
+.province-mist-overlay__fog--right {
+  right: 50%;
+  margin-right: -30vw;
+}
+
+.province-mist-overlay__core {
+  inset: 50% auto auto 50%;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(250, 243, 231, 0.78) 0%, rgba(250, 243, 231, 0.18) 46%, transparent 74%);
+  filter: blur(18px);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+.province-mist-overlay__text-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.province-mist-overlay__province {
+  padding: 4px 12px;
+  border-radius: 999px;
+  color: rgba(108, 81, 50, 0.78);
+  font-size: 15px;
+  letter-spacing: 0.28em;
+  background: rgba(249, 242, 229, 0.44);
+  box-shadow: 0 8px 18px rgba(113, 85, 51, 0.08);
+  opacity: 0;
+}
+
+.province-mist-overlay__text {
+  color: #6d4724;
+  font-family: 'STXingkai', 'Kaiti SC', 'STKaiti', 'KaiTi', serif;
+  font-size: clamp(72px, 10vw, 132px);
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+  text-shadow:
+    0 0 20px rgba(255, 248, 236, 0.85),
+    0 10px 22px rgba(96, 69, 42, 0.18);
+  opacity: 0;
+  transform: scale(1.18);
+  filter: blur(16px);
+}
+
+.province-mist-overlay.is-condense .province-mist-overlay__fog--left,
+.province-mist-overlay.is-condense .province-mist-overlay__fog--right {
+  animation: mist-condense 0.7s ease-out forwards;
+}
+
+.province-mist-overlay.is-condense .province-mist-overlay__core {
+  animation: mist-core-rise 0.7s ease-out forwards;
+}
+
+.province-mist-overlay.is-condense .province-mist-overlay__province,
+.province-mist-overlay.is-condense .province-mist-overlay__text {
+  animation: mist-text-condense 0.7s ease-out forwards;
+}
+
+.province-mist-overlay.is-hold .province-mist-overlay__fog--left,
+.province-mist-overlay.is-hold .province-mist-overlay__fog--right {
+  opacity: 0.82;
+  transform: translateY(-50%) scale(1);
+}
+
+.province-mist-overlay.is-hold .province-mist-overlay__core {
+  opacity: 0.95;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.province-mist-overlay.is-hold .province-mist-overlay__province {
+  opacity: 0.88;
+}
+
+.province-mist-overlay.is-hold .province-mist-overlay__text {
+  opacity: 1;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+.province-mist-overlay.is-disperse .province-mist-overlay__fog--left {
+  animation: mist-drift-left 0.9s ease-in forwards;
+}
+
+.province-mist-overlay.is-disperse .province-mist-overlay__fog--right {
+  animation: mist-drift-right 0.9s ease-in forwards;
+}
+
+.province-mist-overlay.is-disperse .province-mist-overlay__core {
+  animation: mist-core-fade 0.9s ease-in forwards;
+}
+
+.province-mist-overlay.is-disperse .province-mist-overlay__province,
+.province-mist-overlay.is-disperse .province-mist-overlay__text {
+  animation: mist-text-disperse 0.9s ease-in forwards;
+}
+
+.province-mist-fade-enter-active,
+.province-mist-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.province-mist-fade-enter-from,
+.province-mist-fade-leave-to {
+  opacity: 0;
+}
+
+@keyframes mist-condense {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) scale(1.45);
+  }
+  100% {
+    opacity: 0.82;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+@keyframes mist-core-rise {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.72);
+  }
+  100% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes mist-text-condense {
+  0% {
+    opacity: 0;
+    letter-spacing: 0.5em;
+    text-indent: 0.5em;
+    transform: scale(1.18);
+    filter: blur(16px);
+  }
+  100% {
+    opacity: 1;
+    letter-spacing: 0.22em;
+    text-indent: 0.22em;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes mist-drift-left {
+  0% {
+    opacity: 0.82;
+    transform: translateY(-50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-18%, -50%) scale(1.36);
+  }
+}
+
+@keyframes mist-drift-right {
+  0% {
+    opacity: 0.82;
+    transform: translateY(-50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(18%, -50%) scale(1.36);
+  }
+}
+
+@keyframes mist-core-fade {
+  0% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+}
+
+@keyframes mist-text-disperse {
+  0% {
+    opacity: 1;
+    letter-spacing: 0.22em;
+    text-indent: 0.22em;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    letter-spacing: 0.46em;
+    text-indent: 0.46em;
+    transform: scale(1.08);
+    filter: blur(14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .province-mist-overlay__fog,
+  .province-mist-overlay__core,
+  .province-mist-overlay__province,
+  .province-mist-overlay__text {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .province-mist-overlay__fog,
+  .province-mist-overlay__core,
+  .province-mist-overlay__province,
+  .province-mist-overlay__text {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    letter-spacing: 0.22em;
+    text-indent: 0.22em;
+  }
+}
+
+@media (max-width: 768px) {
+  .province-mist-overlay__province {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+  }
+
+  .province-mist-overlay__text {
+    font-size: clamp(54px, 16vw, 92px);
+  }
+}
+
+.hero > div:first-child {
+  position: relative;
+}
+
 .hero > div:first-child {
   position: relative;
 }
